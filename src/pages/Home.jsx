@@ -17,7 +17,7 @@ function Home() {
       {/* Product Tile */}
       <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition duration-300 max-w-md">
         {/* Product Image */}
-        <div className="bg-gradient-to-br from-slate-100 to-slate-200 h-64 flex items-center justify-center">
+        <div className="bg-linear-to-br from-slate-500 to-slate-200 h-64 flex items-center justify-center">
           <span className="text-8xl">{product.image}</span>
         </div>
 
