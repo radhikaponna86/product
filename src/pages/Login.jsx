@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import { GoogleLogin } from '@react-oauth/google';
 
 function Login() {
@@ -78,28 +79,50 @@ function Login() {
   };
 
   // Handle Google Login
-  const handleGoogleCallback = (credentialResponse) => {
+  const handleGoogleCallback = async (credentialResponse) => {
     try {
       const { credential } = credentialResponse;
       if (credential) {
-        console.log('Google login successful');
-        console.log('JWT Token:', credential);
+        // Decode JWT to extract user information
+        const decoded = jwtDecode(credential);
+        console.log('Google login successful:', decoded);
+        
+        setLoading(true);
+        
         // Send credential to your backend
-        // const response = await fetch('/api/auth/google', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ token: credential })
-        // });
-        // const data = await response.json();
-        // Handle successful login - store token, redirect to dashboard, etc.
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/auth/google`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: credential })
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error(`Backend error: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('Backend response:', data);
+        
+        // Store token and user info
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Redirect to dashboard or home
+        window.location.href = '/';
       }
     } catch (error) {
       console.error('Google callback error:', error);
+      setErrors({ ...errors, google: `Login failed: ${error.message}` });
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleError = () => {
-    console.log('Google login failed');
+    console.error('Google login failed');
     setErrors({ ...errors, google: 'Google login failed. Please try again.' });
   };
 
@@ -162,10 +185,17 @@ function Login() {
 
         {/* Divider */}
         <div className="flex items-center my-6">
-          <div className="flex-grow border-t border-gray-300"></div>
+          <div className="grow border-t border-gray-300"></div>
           <span className="px-3 text-gray-500 text-sm">or</span>
-          <div className="flex-grow border-t border-gray-300"></div>
+          <div className="grow border-t border-gray-300"></div>
         </div>
+
+        {/* Google Login Error */}
+        {errors.google && (
+          <p className="text-red-500 text-sm text-center mb-4 bg-red-50 p-3 rounded-lg">
+            {errors.google}
+          </p>
+        )}
 
         {/* Google Login Component */}
         <div className="flex justify-center">
