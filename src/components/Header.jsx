@@ -21,10 +21,10 @@ function Header() {
           </nav>
 
           {/* Mobile Menu */}
-          <div className="md:hidden flex gap-4">
+          {/* <div className="md:hidden flex gap-4">
             <Link to="/" className="text-gray-300 hover:text-amber-500">Home</Link>
             <Link to="/login" className="text-gray-300 hover:text-amber-500">Login</Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </header>
